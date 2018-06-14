@@ -14,3 +14,23 @@
 Route::get('/', function () {
     return view('welcome');
 });
+
+
+Auth::routes();
+
+Route::get('/home', 'HomeController@index')->name('home');
+
+// Route::get('/adminus', function () {
+//     return view('welcome');
+// });
+
+Route::group([
+  'prefix' => 'adminus',
+  'namespace' => 'adminus',
+  'middleware' => 'auth'
+],
+      function (){
+        Route::get('/','controllerDashboard@index')->name('adminus.index');
+        Route::get('/statistic','controllerDashboard@statistic')->name('adminus.statistic');
+      }
+);
