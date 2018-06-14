@@ -4,6 +4,7 @@ git add README.md
 
 git commit -m "first commit"
 
+git status
 git remote add origin https://github.com/lazurav/step.git
 
 git push -u origin master
