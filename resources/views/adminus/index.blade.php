@@ -16,6 +16,13 @@
                     @endif
 
                         Наша админка
+                        <p>{{ $title }}</p>
+
+                        @foreach ($users as $user)
+                        {{ $user->name }}
+                        @endforeach
+                        
+
                 </div>
             </div>
         </div>

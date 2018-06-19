@@ -27,10 +27,11 @@ Route::get('/home', 'HomeController@index')->name('home');
 Route::group([
   'prefix' => 'adminus',
   'namespace' => 'adminus',
-  'middleware' => 'auth'
+  'middleware' => ['auth']
 ],
       function (){
         Route::get('/','controllerDashboard@index')->name('adminus.index');
         Route::get('/statistic','controllerDashboard@statistic')->name('adminus.statistic');
+        Route::get('/post','controllerPost@index')->name('post.index');
       }
 );

@@ -2,9 +2,12 @@ echo "# step" >> README.md
 git init
 git add README.md
 
+git add .
+git status
+
+
 git commit -m "first commit"
 
-git status
 git remote add origin https://github.com/lazurav/step.git
 
 git push -u origin master
