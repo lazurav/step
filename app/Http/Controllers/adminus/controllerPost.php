@@ -15,11 +15,25 @@ class controllerPost extends Controller
      */
     public function index()
     {
-        $data['posts'] = Post::all();
+       // $data['posts'] = Post::all(); // Все посты
         $data['meta_title'] = 'Work with posts';
 
-        return view('post.index', $data);
 
+        // Выборка постов
+        $data['posts'] = Post:: where('author_id', 0)
+               ->orderBy('title', 'desc')
+               ->take(2)
+               ->get(); // 
+
+        /*
+        where('active', 1)
+               ->orderBy('name', 'desc')
+               ->take(10)
+               ->get();
+        */
+
+        return view('post.index', $data);
+        
     }
 
     /**
