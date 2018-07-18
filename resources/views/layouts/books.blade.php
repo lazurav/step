@@ -24,6 +24,12 @@
           width:150px;
           height:70px;
         }
+        .menu>ul {
+            list-style:none;
+        }
+        .menu>ul>li{
+            display: inline;
+        }
 </style>
 </head>
 <body>
@@ -76,14 +82,18 @@
                 </div>
             </div>
         </nav>
-        
-          
+        <div class="menu">
+            {{menu('Test')}}
+        </div>
+        <div class="row">
+            <div class="col-sm-3" style="margin-left:20px;">      
                 @yield('columnLeft')
-
-            
+            </div>
+            <div class="col-sm-8">           
                 <main class="py-4">
                  @yield('content')
                 </main>
+            </div>
           
     </div>
 </body>

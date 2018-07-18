@@ -1,22 +1,20 @@
 @extends('layouts.books')
 
-
 @section('content')
 
 <div class="container">
 
   <hr>
-  {{menu('Test')}}
   <table class="table table-striped">
     <thead>
-      <th>Название</th>
-      <th>Цена</th>
-      <th>Страниц</th>
-      <th>Год</th>
+      <th><?=App\Http\Controllers\adminus\book\controllerBook::sortOrder('title')?>&#9650;</a>Название<?=App\Http\Controllers\adminus\book\controllerBook::sortOrder('title','DESC')?>&#9660;</a></th>
+      <th><?=App\Http\Controllers\adminus\book\controllerBook::sortOrder('price')?>&#9650;</a>Цена<?=App\Http\Controllers\adminus\book\controllerBook::sortOrder('price','DESC')?>&#9660;</a></th>
+      <th><?=App\Http\Controllers\adminus\book\controllerBook::sortOrder('pages')?>&#9650;</a>Страниц<?=App\Http\Controllers\adminus\book\controllerBook::sortOrder('pages','DESC')?>&#9660;</a></th>
+      <th><?=App\Http\Controllers\adminus\book\controllerBook::sortOrder('year')?>&#9650;</a>Год<?=App\Http\Controllers\adminus\book\controllerBook::sortOrder('year','DESC')?>&#9660;</a></th>
       <th>Язык</th>
       <th>Статус</th>
-      <th>Автор</th>
-      <th>Жанр</th>
+      <th><?=App\Http\Controllers\adminus\book\controllerBook::sortOrder('authorname')?>&#9650;</a>Автор<?=App\Http\Controllers\adminus\book\controllerBook::sortOrder('authorname','DESC')?>&#9660;</a></th>
+      <th><?=App\Http\Controllers\adminus\book\controllerBook::sortOrder('janrename')?>&#9650;</a>Жанр<?=App\Http\Controllers\adminus\book\controllerBook::sortOrder('janrename','DESC')?>&#9660;</a></th>
     </thead>
     <tbody>
       @forelse($books as $book)
@@ -84,6 +82,41 @@
               <input class="btn btn-success" type="submit" value="Добавить книгу" />                     
          </form>
 </div>
+
+@endsection
+@section('columnLeft')
+
+<form id="filter" action="{{route('book/books.filter')}}" method="post">
+                {{ csrf_field() }} 
+                <h2>Aftori</h2>                          
+               @foreach($authorNames as $authorName)
+                  <input type="checkbox" name="author_id[]" value="{{$authorName->id}}" id="{{$authorName->id}}" 
+                  <?php if (isset($authors_ids)) {
+                    foreach ($authors_ids as $a_id) {
+                      if ($a_id == $authorName->id) {
+                        echo 'checked';
+                      }
+                    }
+                  } ?>
+                  /> <label for="{{$authorName->id}}">{{$authorName->name}}</label><br />
+               
+              @endforeach
+              <h2>Janri</h2>
+              @foreach($janreNames as $janreName)
+                  <input type="checkbox" name="janre_id[]" value="{{$janreName->id}}" id="janre[{{$janreName->id}}]" 
+                  <?php if (isset($janres_ids)) {
+                    foreach ($janres_ids as $j_id) {
+                      if ($j_id == $janreName->id) {
+                        echo 'checked';
+                      }
+                    }
+                  } ?>
+                  /> <label for="janre[{{$janreName->id}}]">{{$janreName->name}}</label><br />
+               
+              @endforeach
+              <input class="btn btn-success" type="submit" value="Фильтровать" />                     
+</form>
+
 
 @endsection
 

@@ -24,6 +24,9 @@ Route::get('/home', 'HomeController@index')->name('home');
 //     return view('welcome');
 // });
 
+
+
+
 Route::group([
   'prefix' => 'adminus',
   'namespace' => 'adminus'//,
@@ -37,12 +40,22 @@ Route::group([
         
         Route::post('/books/del','book\controllerBook@deleteBook')->name('book/book.delete');
         Route::post('/books/add','book\controllerBook@addBook')->name('book/book.add');
+        Route::post('/books','book\controllerBook@books')->name('book/books.filter');
         
         Route::get('/books','book\controllerBook@books')->name('book/books.index');
         Route::get('/authors','book\controllerAuthor@index')->name('book/authors.index');
         Route::post('/authors','book\controllerAuthor@addAuthor')->name('book/author.add');
         Route::get('/janres','book\controllerJanre@index')->name('book/janres.index');
         Route::post('/janres','book\controllerJanre@addJanre')->name('book/janre.add');
+
+
+        // Route::get('book/{slug}', function($slug){
+        //   $data ['slug'] =  'Test Slug' . $slug;
+
+        //     //$result =   DB::table('campains')->where('slug', $slug)->get();
+        //     // .... call controller etc...
+        //   return view('welcome', $data);
+        // });
 
       }
 );
