@@ -62,14 +62,14 @@ class controllerBook extends Controller
         $authors_ids = $_POST['author_id'];
         $data['authors_ids'] = $_POST['author_id'];
       } else {
-        $authors_ids =  ['8','9','10','11','12','13','14','15','16','17']; // Тут форычем надо просто все существующие ID привязать, это сделано чтобы по-умолчанию все показывалось
+        $authors_ids =  ['8','9','10','11','12','13','14','15','16','17']; // Тут форычем надо просто все существующие ID привязать, это сделано чтобы по-умолчанию все 
       }
 
       if(isset($_POST['janre_id'])){
         $janres_ids = $_POST['janre_id'];
         $data['janres_ids'] = $_POST['janre_id'];
       } else {
-        $janres_ids =  ['8','9','10','11','12','13','14','15','16','17']; // Тут форычем надо просто все существующие ID привязать, это сделано чтобы по-умолчанию все показывалось
+        $janres_ids =  ['8','9','10','11','12','13','14','15','16','17']; // Тут форычем надо просто все существующие ID привязать
       }
 
 
@@ -78,15 +78,79 @@ class controllerBook extends Controller
         $sortOrder = $_GET['sortOrder'];
       } 
 
-      $books = Book::with([
-            'author' => function ($query) {
-            $query->orderBy('name', 'ASC');
-        }])->with([
-            'janre' => function ($query) {
-            $query->orderBy('name', 'ASC');
-        }])->select(DB::raw('books.id, books.title, books.year, books.pages, books.price, books.lang, books.status, a.name as authorname, j.name as janrename'))->join(
-                'author_book as ab', 'ab.book_id', '=', 'books.id')->join('authors as a', 'a.id', '=', 'ab.author_id')->join('book_janre as bj', 'bj.book_id', '=', 'books.id')->join('janres as j', 'j.id', '=', 'bj.janre_id')->wherein('a.id',$authors_ids)->wherein('j.id',$janres_ids)->orderBy($orderBy, $sortOrder)->orderBy('title','asc')->get();
-       
+      if (!isset($_POST['janre_id']) && !isset($_POST['author_id']) && !isset($_GET['orderBy']) && !isset($_GET['sortOrder'])) {
+        $books = Book::with([
+              'author' => function ($query) {
+              $query->orderBy('name', 'ASC');
+          }])->with([
+              'janre' => function ($query) {
+              $query->orderBy('name', 'ASC');
+          }])->orderBy('title','asc')->get();
+      
+      } elseif (!isset($_POST['janre_id']) && !isset($_POST['author_id']) && ($_GET['orderBy']!='authorname') && ($_GET['orderBy']!='janrename')) {
+         $books = Book::with([
+              'author' => function ($query) {
+              $query->orderBy('name', 'ASC');
+          }])->with([
+              'janre' => function ($query) {
+              $query->orderBy('name', 'ASC');
+          }])->orderBy($orderBy, $sortOrder)->orderBy('title','asc')->get();
+
+      } elseif (!isset($_POST['janre_id']) && !isset($_POST['author_id']) && ($_GET['orderBy']=='authorname')){
+        $books = Book::with([
+              'author' => function ($query) {
+              $query->orderBy('name', 'ASC');
+          }])->with([
+              'janre' => function ($query) {
+              $query->orderBy('name', 'ASC');
+          }])->select(DB::raw('books.id, books.title, books.year, books.pages, books.price, books.lang, books.status, a.name as authorname'))->join(
+                  'author_book as ab', 'ab.book_id', '=', 'books.id')->join('authors as a', 'a.id', '=', 'ab.author_id')->orderBy($orderBy, $sortOrder)->orderBy('title','asc')->get();
+
+      } elseif (!isset($_POST['janre_id']) && !isset($_POST['author_id']) && ($_GET['orderBy']=='janrename')){
+        $books = Book::with([
+              'author' => function ($query) {
+              $query->orderBy('name', 'ASC');
+          }])->with([
+              'janre' => function ($query) {
+              $query->orderBy('name', 'ASC');
+          }])->select(DB::raw('books.id, books.title, books.year, books.pages, books.price, books.lang, books.status, j.name as janrename'))->join('book_janre as bj', 'bj.book_id', '=', 'books.id')->join('janres as j', 'j.id', '=', 'bj.janre_id')->orderBy($orderBy, $sortOrder)->orderBy('title','asc')->get();
+
+      } elseif (isset($_POST['author_id']) && !isset($_POST['janre_id'])) {
+         $books = Book::with([
+              'author' => function ($query) {
+              $query->orderBy('name', 'ASC');
+          }])->with([
+              'janre' => function ($query) {
+              $query->orderBy('name', 'ASC');
+          }])->select(DB::raw('books.id, books.title, books.year, books.pages, books.price, books.lang, books.status, a.name as authorname'))->join(
+                  'author_book as ab', 'ab.book_id', '=', 'books.id')->join('authors as a', 'a.id', '=', 'ab.author_id')->wherein('a.id',$authors_ids)->orderBy('title','asc')->get();
+      } elseif (!isset($_POST['author_id']) && isset($_POST['janre_id'])) {
+         $books = Book::with([
+              'author' => function ($query) {
+              $query->orderBy('name', 'ASC');
+          }])->with([
+              'janre' => function ($query) {
+              $query->orderBy('name', 'ASC');
+          }])->select(DB::raw('books.id, books.title, books.year, books.pages, books.price, books.lang, books.status, j.name as janername'))->join('book_janre as bj', 'bj.book_id', '=', 'books.id')->join('janres as j', 'j.id', '=', 'bj.janre_id')->wherein('j.id',$janres_ids)->orderBy('title','asc')->get();
+      } elseif (isset($_POST['author_id']) && isset($_POST['janre_id'])) {
+         $books = Book::with([
+              'author' => function ($query) {
+              $query->orderBy('name', 'ASC');
+          }])->with([
+              'janre' => function ($query) {
+              $query->orderBy('name', 'ASC');
+          }])->select(DB::raw('books.id, books.title, books.year, books.pages, books.price, books.lang, books.status, a.name as authorname, j.name as janrename'))->join(
+                  'author_book as ab', 'ab.book_id', '=', 'books.id')->join('authors as a', 'a.id', '=', 'ab.author_id')->join('book_janre as bj', 'bj.book_id', '=', 'books.id')->join('janres as j', 'j.id', '=', 'bj.janre_id')->wherein('a.id',$authors_ids)->wherein('j.id',$janres_ids)->orderBy('title','asc')->get();
+      } else {
+        $books = Book::with([
+              'author' => function ($query) {
+              $query->orderBy('name', 'ASC');
+          }])->with([
+              'janre' => function ($query) {
+              $query->orderBy('name', 'ASC');
+          }])->select(DB::raw('books.id, books.title, books.year, books.pages, books.price, books.lang, books.status, a.name as authorname, j.name as janrename'))->join(
+                  'author_book as ab', 'ab.book_id', '=', 'books.id')->join('authors as a', 'a.id', '=', 'ab.author_id')->join('book_janre as bj', 'bj.book_id', '=', 'books.id')->join('janres as j', 'j.id', '=', 'bj.janre_id')->wherein('a.id',$authors_ids)->wherein('j.id',$janres_ids)->orderBy($orderBy, $sortOrder)->orderBy('title','asc')->get();
+       }
        $data['books'] = $books;
 
       // foreach ($books as $book) {

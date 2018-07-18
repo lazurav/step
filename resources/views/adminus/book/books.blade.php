@@ -88,7 +88,7 @@
 
 <form id="filter" action="{{route('book/books.filter')}}" method="post">
                 {{ csrf_field() }} 
-                <h2>Aftori</h2>                          
+                <h2>Author</h2>                          
                @foreach($authorNames as $authorName)
                   <input type="checkbox" name="author_id[]" value="{{$authorName->id}}" id="{{$authorName->id}}" 
                   <?php if (isset($authors_ids)) {
