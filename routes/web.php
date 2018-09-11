@@ -38,7 +38,7 @@ Route::group([
         Route::get('/post','controllerPost@index')->name('post.index');
         Route::get('/book','book\controllerBook@book')->name('book/book.index');
         
-        Route::post('/books/del','book\controllerBook@deleteBook')->name('book/book.delete');
+
         Route::post('/books/add','book\controllerBook@addBook')->name('book/book.add');
         Route::post('/books','book\controllerBook@books')->name('book/books.filter');
         
@@ -56,6 +56,17 @@ Route::group([
         //     // .... call controller etc...
         //   return view('welcome', $data);
         // });
+
+      }
+);
+
+Route::group([
+  'prefix' => 'adminus',
+  'namespace' => 'adminus',
+  'middleware' => ['auth']
+],
+      function (){
+        Route::post('/books/del','book\controllerBook@deleteBook')->name('book/book.delete');
 
       }
 );

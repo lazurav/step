@@ -91,9 +91,9 @@
                 <h2>Author</h2>                          
                @foreach($authorNames as $authorName)
                   <input type="checkbox" name="author_id[]" value="{{$authorName->id}}" id="{{$authorName->id}}" 
-                  <?php if (isset($authors_ids)) {
-                    foreach ($authors_ids as $a_id) {
-                      if ($a_id == $authorName->id) {
+                  <?php if (isset($aids)) {
+                    foreach ($aids as $aid) {
+                      if ($aid == $authorName->id) {
                         echo 'checked';
                       }
                     }
@@ -104,9 +104,9 @@
               <h2>Janri</h2>
               @foreach($janreNames as $janreName)
                   <input type="checkbox" name="janre_id[]" value="{{$janreName->id}}" id="janre[{{$janreName->id}}]" 
-                  <?php if (isset($janres_ids)) {
-                    foreach ($janres_ids as $j_id) {
-                      if ($j_id == $janreName->id) {
+                  <?php if (isset($jids)) {
+                    foreach ($jids as $jid) {
+                      if ($jid == $janreName->id) {
                         echo 'checked';
                       }
                     }
@@ -114,7 +114,11 @@
                   /> <label for="janre[{{$janreName->id}}]">{{$janreName->name}}</label><br />
                
               @endforeach
-              <input class="btn btn-success" type="submit" value="Фильтровать" />                     
+              <input class="btn btn-success" type="submit" value="Submit" />                  
+</form>
+<form method="post">
+   {{ csrf_field() }} 
+    <input class="btn btn-danger" type="submit" name="reset" value="Reset">
 </form>
 
 

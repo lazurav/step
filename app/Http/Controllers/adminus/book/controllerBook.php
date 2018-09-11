@@ -4,6 +4,7 @@ namespace App\Http\Controllers\adminus\book;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Session;
 use App\modelBook\Book;
 use App\modelBook\Author;
 use App\modelBook\Janre;
@@ -57,20 +58,28 @@ class controllerBook extends Controller
       $data['janreNames'] = Janre::all()->sortBy('name');
       //var_dump($data['janreNames']);
       
+      if (isset($_POST['_token'])) {
 
-      if(isset($_POST['author_id'])){
-        $authors_ids = $_POST['author_id'];
-        $data['authors_ids'] = $_POST['author_id'];
-      } else {
-        $authors_ids =  ['8','9','10','11','12','13','14','15','16','17']; // Тут форычем надо просто все существующие ID привязать, это сделано чтобы по-умолчанию все 
-      }
+        if(isset($_POST['author_id'])){
+          $authors_ids = $_POST['author_id'];
+          Session::put('aids', $authors_ids);
+          $data['authors_ids'] = $_POST['author_id'];
+        } elseif (!isset($_POST['author_id'])) {
+          Session::forget('aids');
+        }
+        if(isset($_POST['janre_id'])){
+          $janres_ids = $_POST['janre_id'];
+           Session::put('jids', $janres_ids);
+          $data['janres_ids'] = $_POST['janre_id'];
+        } elseif (!isset($_POST['janre_id'])) {
+          Session::forget('jids');
+        }
+      } 
 
-      if(isset($_POST['janre_id'])){
-        $janres_ids = $_POST['janre_id'];
-        $data['janres_ids'] = $_POST['janre_id'];
-      } else {
-        $janres_ids =  ['8','9','10','11','12','13','14','15','16','17']; // Тут форычем надо просто все существующие ID привязать
-      }
+      $aids = Session::get('aids');
+      $data['aids'] = $aids;
+      $jids = Session::get('jids');
+      $data['jids'] = $jids;
 
 
       if (isset($_GET['orderBy']) && isset($_GET['sortOrder'])){
@@ -78,79 +87,133 @@ class controllerBook extends Controller
         $sortOrder = $_GET['sortOrder'];
       } 
 
-      if (!isset($_POST['janre_id']) && !isset($_POST['author_id']) && !isset($_GET['orderBy']) && !isset($_GET['sortOrder'])) {
-        $books = Book::with([
-              'author' => function ($query) {
-              $query->orderBy('name', 'ASC');
-          }])->with([
-              'janre' => function ($query) {
-              $query->orderBy('name', 'ASC');
-          }])->orderBy('title','asc')->get();
-      
-      } elseif (!isset($_POST['janre_id']) && !isset($_POST['author_id']) && ($_GET['orderBy']!='authorname') && ($_GET['orderBy']!='janrename')) {
-         $books = Book::with([
-              'author' => function ($query) {
-              $query->orderBy('name', 'ASC');
-          }])->with([
-              'janre' => function ($query) {
-              $query->orderBy('name', 'ASC');
-          }])->orderBy($orderBy, $sortOrder)->orderBy('title','asc')->get();
+      // if (!isset($jids) && !isset($aids) && !isset($_GET['orderBy']) && !isset($_GET['sortOrder'])) {
+      //   $books = Book::with([
+      //         'author' => function ($query) {
+      //         $query->orderBy('name', 'ASC');
+      //     }])->with([
+      //         'janre' => function ($query) {
+      //         $query->orderBy('name', 'ASC');
+      //     }])->orderBy('title','asc')->get();
 
-      } elseif (!isset($_POST['janre_id']) && !isset($_POST['author_id']) && ($_GET['orderBy']=='authorname')){
-        $books = Book::with([
-              'author' => function ($query) {
-              $query->orderBy('name', 'ASC');
-          }])->with([
-              'janre' => function ($query) {
-              $query->orderBy('name', 'ASC');
-          }])->select(DB::raw('books.id, books.title, books.year, books.pages, books.price, books.lang, books.status, a.name as authorname'))->join(
-                  'author_book as ab', 'ab.book_id', '=', 'books.id')->join('authors as a', 'a.id', '=', 'ab.author_id')->orderBy($orderBy, $sortOrder)->orderBy('title','asc')->get();
+      // } elseif (!isset($jids) && !isset($aids) && ($_GET['orderBy']!='authorname') && ($_GET['orderBy']!='janrename')) {
+      //    $books = Book::with([
+      //         'author' => function ($query) {
+      //         $query->orderBy('name', 'ASC');
+      //     }])->with([
+      //         'janre' => function ($query) {
+      //         $query->orderBy('name', 'ASC');
+      //     }])->orderBy($orderBy, $sortOrder)->orderBy('title','asc')->get();
 
-      } elseif (!isset($_POST['janre_id']) && !isset($_POST['author_id']) && ($_GET['orderBy']=='janrename')){
-        $books = Book::with([
-              'author' => function ($query) {
-              $query->orderBy('name', 'ASC');
-          }])->with([
-              'janre' => function ($query) {
-              $query->orderBy('name', 'ASC');
-          }])->select(DB::raw('books.id, books.title, books.year, books.pages, books.price, books.lang, books.status, j.name as janrename'))->join('book_janre as bj', 'bj.book_id', '=', 'books.id')->join('janres as j', 'j.id', '=', 'bj.janre_id')->orderBy($orderBy, $sortOrder)->orderBy('title','asc')->get();
+      // } elseif (!isset($jids) && !isset($aids) && ($_GET['orderBy']=='authorname')){
+      //   $books = Book::with([
+      //         'author' => function ($query) {
+      //         $query->orderBy('name', 'ASC');
+      //     }])->with([
+      //         'janre' => function ($query) {
+      //         $query->orderBy('name', 'ASC');
+      //     }])->select(DB::raw('books.id, books.title, books.year, books.pages, books.price, books.lang, books.status, a.name as authorname'))->join(
+      //             'author_book as ab', 'ab.book_id', '=', 'books.id')->join('authors as a', 'a.id', '=', 'ab.author_id')->orderBy($orderBy, $sortOrder)->orderBy('title','asc')->get();
 
-      } elseif (isset($_POST['author_id']) && !isset($_POST['janre_id'])) {
-         $books = Book::with([
+      // } elseif (!isset($jids) && !isset($aids) && ($_GET['orderBy']=='janrename')){
+      //   $books = Book::with([
+      //         'author' => function ($query) {
+      //         $query->orderBy('name', 'ASC');
+      //     }])->with([
+      //         'janre' => function ($query) {
+      //         $query->orderBy('name', 'ASC');
+      //     }])->select(DB::raw('books.id, books.title, books.year, books.pages, books.price, books.lang, books.status, j.name as janrename'))->join('book_janre as bj', 'bj.book_id', '=', 'books.id')->join('janres as j', 'j.id', '=', 'bj.janre_id')->orderBy($orderBy, $sortOrder)->orderBy('title','asc')->get();
+
+      // } elseif (isset($aids) && !isset($jids) && !isset($_GET['orderBy']) && !isset($_GET['sortOrder'])) {
+      //    $books = Book::with([
+      //         'author' => function ($query) {
+      //         $query->orderBy('name', 'ASC');
+      //     }])->with([
+      //         'janre' => function ($query) {
+      //         $query->orderBy('name', 'ASC');
+      //     }])->select(DB::raw('books.id, books.title, books.year, books.pages, books.price, books.lang, books.status, a.name as authorname'))->join(
+      //             'author_book as ab', 'ab.book_id', '=', 'books.id')->join('authors as a', 'a.id', '=', 'ab.author_id')->wherein('a.id', $aids)->orderBy('title','asc')->get();
+      // } elseif (!isset($aids) && isset($jids) && !isset($_GET['orderBy']) && !isset($_GET['sortOrder'])) {
+      //    $books = Book::with([
+      //         'author' => function ($query) {
+      //         $query->orderBy('name', 'ASC');
+      //     }])->with([
+      //         'janre' => function ($query) {
+      //         $query->orderBy('name', 'ASC');
+      //     }])->select(DB::raw('books.id, books.title, books.year, books.pages, books.price, books.lang, books.status, j.name as janrename'))->join('book_janre as bj', 'bj.book_id', '=', 'books.id')->join('janres as j', 'j.id', '=', 'bj.janre_id')->wherein('j.id',$jids)->orderBy('title','asc')->get();
+      // } elseif (isset($aids) && isset($jids) && !isset($_GET['orderBy']) && !isset($_GET['sortOrder'])) {
+      //    $books = Book::with([
+      //         'author' => function ($query) {
+      //         $query->orderBy('name', 'ASC');
+      //     }])->with([
+      //         'janre' => function ($query) {
+      //         $query->orderBy('name', 'ASC');
+      //     }])->select(DB::raw('books.id, books.title, books.year, books.pages, books.price, books.lang, books.status, a.name as authorname, j.name as janrename'))->join(
+      //             'author_book as ab', 'ab.book_id', '=', 'books.id')->join('authors as a', 'a.id', '=', 'ab.author_id')->join('book_janre as bj', 'bj.book_id', '=', 'books.id')->join('janres as j', 'j.id', '=', 'bj.janre_id')->wherein('a.id', $aids)->wherein('j.id',$jids)->orderBy($orderBy, $sortOrder)->orderBy('title','asc')->get();
+      // } else {
+      //   $sql = Book::with([
+      //         'author' => function ($query) {
+      //         $query->orderBy('name', 'ASC');
+      //     }])->with([
+      //         'janre' => function ($query) {
+      //         $query->orderBy('name', 'ASC');
+      //     }])->select(DB::raw('books.id, books.title, books.year, books.pages, books.price, books.lang, books.status, a.name as authorname, j.name as janrename'))->join(
+      //             'author_book as ab', 'ab.book_id', '=', 'books.id')->join('authors as a', 'a.id', '=', 'ab.author_id')->join('book_janre as bj', 'bj.book_id', '=', 'books.id')->join('janres as j', 'j.id', '=', 'bj.janre_id');
+      //       if (isset($aids)) {
+      //         $sql->wherein('a.id', $aids);
+      //       }
+      //       if (isset($jids)) {
+      //         $sql->wherein('j.id',$jids);
+      //       }
+
+      //       $sql->orderBy($orderBy, $sortOrder)->orderBy('title','asc');
+
+      //       $books = $sql->get();
+      //  }
+
+        $sql = Book::with([
               'author' => function ($query) {
               $query->orderBy('name', 'ASC');
           }])->with([
               'janre' => function ($query) {
               $query->orderBy('name', 'ASC');
-          }])->select(DB::raw('books.id, books.title, books.year, books.pages, books.price, books.lang, books.status, a.name as authorname'))->join(
-                  'author_book as ab', 'ab.book_id', '=', 'books.id')->join('authors as a', 'a.id', '=', 'ab.author_id')->wherein('a.id',$authors_ids)->orderBy('title','asc')->get();
-      } elseif (!isset($_POST['author_id']) && isset($_POST['janre_id'])) {
-         $books = Book::with([
-              'author' => function ($query) {
-              $query->orderBy('name', 'ASC');
-          }])->with([
-              'janre' => function ($query) {
-              $query->orderBy('name', 'ASC');
-          }])->select(DB::raw('books.id, books.title, books.year, books.pages, books.price, books.lang, books.status, j.name as janername'))->join('book_janre as bj', 'bj.book_id', '=', 'books.id')->join('janres as j', 'j.id', '=', 'bj.janre_id')->wherein('j.id',$janres_ids)->orderBy('title','asc')->get();
-      } elseif (isset($_POST['author_id']) && isset($_POST['janre_id'])) {
-         $books = Book::with([
-              'author' => function ($query) {
-              $query->orderBy('name', 'ASC');
-          }])->with([
-              'janre' => function ($query) {
-              $query->orderBy('name', 'ASC');
-          }])->select(DB::raw('books.id, books.title, books.year, books.pages, books.price, books.lang, books.status, a.name as authorname, j.name as janrename'))->join(
-                  'author_book as ab', 'ab.book_id', '=', 'books.id')->join('authors as a', 'a.id', '=', 'ab.author_id')->join('book_janre as bj', 'bj.book_id', '=', 'books.id')->join('janres as j', 'j.id', '=', 'bj.janre_id')->wherein('a.id',$authors_ids)->wherein('j.id',$janres_ids)->orderBy('title','asc')->get();
-      } else {
-        $books = Book::with([
-              'author' => function ($query) {
-              $query->orderBy('name', 'ASC');
-          }])->with([
-              'janre' => function ($query) {
-              $query->orderBy('name', 'ASC');
-          }])->select(DB::raw('books.id, books.title, books.year, books.pages, books.price, books.lang, books.status, a.name as authorname, j.name as janrename'))->join(
-                  'author_book as ab', 'ab.book_id', '=', 'books.id')->join('authors as a', 'a.id', '=', 'ab.author_id')->join('book_janre as bj', 'bj.book_id', '=', 'books.id')->join('janres as j', 'j.id', '=', 'bj.janre_id')->wherein('a.id',$authors_ids)->wherein('j.id',$janres_ids)->orderBy($orderBy, $sortOrder)->orderBy('title','asc')->get();
-       }
+          }]);
+
+        if ((isset($aids) && isset($jids)) || (isset($aids) && (isset($_GET['orderBy']) && $_GET['orderBy'] == 'janrename')) || (isset($jids) && (isset($_GET['orderBy']) && $_GET['orderBy'] == 'authorname'))) {
+          $sql->select(DB::raw('books.id, books.title, books.year, books.pages, books.price, books.lang, books.status, a.name as authorname, j.name as janrename'))->join(
+                  'author_book as ab', 'ab.book_id', '=', 'books.id')->join('authors as a', 'a.id', '=', 'ab.author_id')->join('book_janre as bj', 'bj.book_id', '=', 'books.id')->join('janres as j', 'j.id', '=', 'bj.janre_id');
+        } elseif (isset($aids) || (isset($_GET['orderBy']) && $_GET['orderBy'] == 'authorname')) {
+          $sql->select(DB::raw('books.id, books.title, books.year, books.pages, books.price, books.lang, books.status, a.name as authorname'))->join(
+                  'author_book as ab', 'ab.book_id', '=', 'books.id')->join('authors as a', 'a.id', '=', 'ab.author_id');
+        } elseif (isset($jids) || (isset($_GET['orderBy']) && $_GET['orderBy'] == 'janrename')) {
+          $sql->select(DB::raw('books.id, books.title, books.year, books.pages, books.price, books.lang, books.status, j.name as janrename'))->join('book_janre as bj', 'bj.book_id', '=', 'books.id')->join('janres as j', 'j.id', '=', 'bj.janre_id');
+        }
+
+
+                      // if (isset($aids)) {
+                      //     $sql->whereHas('author', function($query) use ($aids){
+                      //       $query->wherein('author_id', $aids);
+                      //     });
+                      // }
+                      // if (isset($jids)) {
+                      //     $sql->whereHas('janre', function($query) use ($jids){
+                      //       $query->wherein('janre_id', $jids);
+                      //     });
+                      // }
+
+        if (isset($aids)) {
+            $sql->wherein('a.id', $aids);
+        }
+        if (isset($jids)) {
+            $sql->wherein('j.id', $jids);
+        }
+
+        if (isset($_GET['orderBy'])) {
+          $sql->orderBy($orderBy, $sortOrder);
+        }
+
+        $books = $sql->orderBy('title','asc')->get();
+
        $data['books'] = $books;
 
       // foreach ($books as $book) {
@@ -161,6 +224,7 @@ class controllerBook extends Controller
       //$book123 = Book::find(13)->author()->attach(10);
       //$book123 = Book::find(13)->author()->detach(10);
     	return view('adminus.book.books', $data);
+
     }
 
 
@@ -221,3 +285,25 @@ class controllerBook extends Controller
     }
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
